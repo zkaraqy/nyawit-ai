@@ -18,12 +18,16 @@ export default defineNuxtConfig({
       tailwindcss(),
     ],
   },
+  build: {
+    transpile: ['sequelize', 'pg', 'pg-connection-string']
+  },
   nitro: {
     alias: {
-      'pg-native': 'unenv/runtime/mock/empty',
+      'pg-native': 'unenv/runtime/mock/proxy',
+      'pg-hstore': 'unenv/runtime/mock/proxy',
     },
     rollupConfig: {
-      external: ['pg-native'],
+      external: ['pg-native', 'pg-hstore'],
     },
   },
 })
