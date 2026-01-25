@@ -18,4 +18,7 @@ export default defineNuxtConfig({
       tailwindcss(),
     ],
   },
+  nitro: {
+    preset: 'cloudflare-pages'
+  }
 })
