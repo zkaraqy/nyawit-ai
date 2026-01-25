@@ -1,13 +1,13 @@
-name: Deploy to Cloudflare Pages
+name: Database Migration
 
 on:
   push:
     branches: [main]
 
 jobs:
-  deploy:
+  migrate_database:
     runs-on: ubuntu-latest
-    name: Migrate & Deploy
+    name: Run Sequelize Migration
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -19,26 +19,11 @@ jobs:
           cache: "npm"
 
       - name: Install Dependencies
+        # Kita perlu install dependencies agar sequelize-cli bisa jalan
         run: npm ci
 
-      # --- STEP 1: DATABASE MIGRATION ---
       - name: Run Sequelize Migration
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NODE_ENV: production
         run: npx sequelize-cli db:migrate
-
-      # --- STEP 2: BUILD APP ---
-      - name: Build Application
-        run: npm run build
-        env:
-          # If your build process needs the DB URL (unlikely for frontend, but possible)
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      # --- STEP 3: DEPLOY TO CLOUDFLARE ---
-      - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .output/public --project-name=nyawitai
