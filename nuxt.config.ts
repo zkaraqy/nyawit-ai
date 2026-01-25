@@ -19,6 +19,9 @@ export default defineNuxtConfig({
     ],
   },
   nitro: {
-    preset: 'cloudflare-pages'
+    preset: 'cloudflare-pages',
+    alias: {
+      'pg-native': 'unenv/runtime/mock/proxy',
+    },
   }
 })
