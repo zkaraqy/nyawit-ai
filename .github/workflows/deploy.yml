@@ -28,6 +28,9 @@ jobs:
           NODE_ENV: production
         run: npx sequelize-cli db:migrate
 
+      - name: Build Nuxt Application
+        run: npm run build
+
       - name: Clean Nuxt Auto-Config
         run: rm -f .output/server/wrangler.json || true
 
