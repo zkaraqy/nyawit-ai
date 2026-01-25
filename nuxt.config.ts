@@ -18,4 +18,12 @@ export default defineNuxtConfig({
       tailwindcss(),
     ],
   },
+  nitro: {
+    alias: {
+      'pg-native': 'unenv/runtime/mock/empty',
+    },
+    rollupConfig: {
+      external: ['pg-native'],
+    },
+  },
 })
