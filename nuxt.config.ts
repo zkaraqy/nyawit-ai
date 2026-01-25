@@ -18,10 +18,4 @@ export default defineNuxtConfig({
       tailwindcss(),
     ],
   },
-  nitro: {
-    preset: 'cloudflare-pages',
-    alias: {
-      'pg-native': 'unenv/runtime/mock/proxy',
-    },
-  }
 })
