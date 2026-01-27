@@ -1,6 +1,6 @@
-# Nyawit AI - Nuxt 4 + DrizzleORM + Cloudflare Pages
+# Nyawit AI - Nuxt 4 + DrizzleORM + Railway
 
-Aplikasi web modern dengan Nuxt 4, DrizzleORM untuk database management, dan deployed di Cloudflare Pages.
+Aplikasi web modern dengan Nuxt 4, DrizzleORM untuk database management, dan deployed di Railway.
 
 ## Tech Stack
 
@@ -8,7 +8,7 @@ Aplikasi web modern dengan Nuxt 4, DrizzleORM untuk database management, dan dep
 - **Database**: PostgreSQL + DrizzleORM
 - **Styling**: Tailwind CSS v4
 - **3D**: Three.js + TresJS
-- **Deployment**: Cloudflare Pages
+- **Deployment**: Railway
 - **CI/CD**: GitHub Actions
 
 ## Setup
@@ -97,11 +97,48 @@ Preview production build locally:
 npm run preview
 ```
 
-## Deployment to Cloudflare Pages
+## Deployment to Railway
 
 ### Automatic Deployment (Recommended)
 
-Push ke branch `main` akan otomatis trigger deployment via GitHub Actions.
+1. **Connect Repository to Railway**
+   - Login to [Railway](https://railway.app)
+   - Create New Project > Deploy from GitHub
+   - Select `nyawit-ai` repository
+
+2. **Add PostgreSQL Database**
+   - New > Database > Add PostgreSQL
+   - Railway auto-generates credentials
+
+3. **Configure Environment Variables**
+   ```env
+   DB_HOST=${{Postgres.PGHOST}}
+   DB_PORT=${{Postgres.PGPORT}}
+   DB_USERNAME=${{Postgres.PGUSER}}
+   DB_PASSWORD=${{Postgres.PGPASSWORD}}
+   DB_NAME=${{Postgres.PGDATABASE}}
+   MODE=production
+   ```
+
+4. **Push to Main Branch**
+   - Push akan otomatis trigger deployment
+   - Migration dijalankan otomatis via GitHub Actions
+
+### Manual Deployment via CLI
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login
+railway login
+
+# Link project
+railway link
+
+# Deploy
+railway up
+```
 
 **Required GitHub Secrets:**
 - `DB_HOST`
@@ -109,30 +146,8 @@ Push ke branch `main` akan otomatis trigger deployment via GitHub Actions.
 - `DB_USERNAME`
 - `DB_PASSWORD`
 - `DB_NAME`
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
 
-### Manual Deployment
-
-#### Windows (PowerShell):
-```powershell
-.\deploy.ps1
-```
-
-#### Linux/Mac (Bash):
-```bash
-chmod +x deploy.sh
-./deploy.sh
-```
-
-#### Via NPM:
-```bash
-# Build and deploy
-npm run deploy:build
-
-# Deploy only (setelah build)
-npm run deploy
-```
+Ambil dari Railway Dashboard > PostgreSQL > Variables
 
 ## Documentation
 
@@ -165,20 +180,20 @@ nyawit-ai/
 │       └── deploy.yml
 ├── drizzle.config.ts
 ├── nuxt.config.ts
-└── wrangler.toml
+└── package.json
 ```
 
 ## Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
+- `npm run start` - Start production server
 - `npm run preview` - Preview production build
 - `npm run db:generate` - Generate migrations
 - `npm run db:push` - Push schema to database
 - `npm run db:migrate` - Run migrations
 - `npm run db:studio` - Open Drizzle Studio
-- `npm run deploy` - Deploy to Cloudflare
-- `npm run deploy:build` - Build and deploy
+- `npm run deploy` - Build and run migrations
 
 ## Contributing
 

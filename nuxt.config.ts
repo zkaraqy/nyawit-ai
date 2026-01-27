@@ -18,13 +18,4 @@ export default defineNuxtConfig({
       tailwindcss(),
     ],
   },
-  nitro: {
-    preset: 'cloudflare-pages',
-    noPublicDir: true,
-    rollupConfig: {
-      output: {
-        entryFileNames: '_worker.js',
-      }
-    },
-  },
 })

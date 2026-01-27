@@ -1,15 +1,13 @@
-name: Deploy to Cloudflare Pages
+name: Deploy to Railway
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
-  migrate_database:
+  deploy:
     runs-on: ubuntu-latest
-    name: Database Migration & Deploy
+    name: Build and Deploy
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -23,16 +21,6 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run DrizzleORM Migration
-        env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          MODE: production
-        run: npm run db:push
-
       - name: Build Nuxt Application
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
@@ -43,17 +31,17 @@ jobs:
           MODE: production
         run: npm run build
 
-      - name: Remove Auto-generated Wrangler Config
-        run: |
-          rm -f .output/server/wrangler.json || true
-          rm -f dist/_worker.js/wrangler.json || true
-          find .output -name "wrangler.json" -delete || true
+      - name: Run Database Migration
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          MODE: production
+        run: npm run db:migrate
 
-      - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: nyawitai
-          directory: .output/public
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy to Railway
+        run: |
+          echo "Railway will automatically deploy from this repository"
+          echo "Make sure Railway is connected to this GitHub repository"
