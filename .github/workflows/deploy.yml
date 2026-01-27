@@ -48,7 +48,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .output/public --project-name=nyawitai
+          command: pages deploy .output/public --project-name=nyawitai --branch=main
 
       - name: Clean Up
         run: rm -f .output/server/wrangler.json || true
