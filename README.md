@@ -121,8 +121,10 @@ npm run preview
    ```
 
 4. **Push to Main Branch**
-   - Push akan otomatis trigger deployment
-   - Migration dijalankan otomatis via GitHub Actions
+   - Railway akan otomatis detect changes
+   - Build: `npm run build`
+   - Start: `npm run start` (migration + server)
+   - Migration dijalankan otomatis setiap deployment
 
 ### Manual Deployment via CLI
 
@@ -187,13 +189,12 @@ nyawit-ai/
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
-- `npm run start` - Start production server
+- `npm run start` - Run migration & start production server
 - `npm run preview` - Preview production build
 - `npm run db:generate` - Generate migrations
 - `npm run db:push` - Push schema to database
 - `npm run db:migrate` - Run migrations
 - `npm run db:studio` - Open Drizzle Studio
-- `npm run deploy` - Build and run migrations
 
 ## Contributing
 

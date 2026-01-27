@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "start": "node .output/server/index.mjs",
+    "start": "npm run db:migrate && node .output/server/index.mjs",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -13,8 +13,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:drop": "drizzle-kit drop",
-    "deploy": "npm run build && npm run db:migrate"
+    "db:drop": "drizzle-kit drop"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",

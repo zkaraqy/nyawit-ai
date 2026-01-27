@@ -41,7 +41,9 @@ jobs:
           MODE: production
         run: npm run db:migrate
 
-      - name: Deploy to Railway
+      - name: Deployment Info
         run: |
-          echo "Railway will automatically deploy from this repository"
-          echo "Make sure Railway is connected to this GitHub repository"
+          echo "✅ Build completed successfully"
+          echo "✅ Database migration completed"
+          echo "🚀 Railway will deploy automatically from this repository"
+          echo "⚠️  Make sure Railway service is connected to this GitHub repository"
