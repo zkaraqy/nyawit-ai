@@ -18,19 +18,9 @@ export default defineNuxtConfig({
       tailwindcss(),
     ],
   },
-  build: {
-    transpile: ['sequelize', 'pg', 'pg-connection-string']
-  },
   nitro: {
     preset: 'cloudflare-pages',
     noPublicDir: true,
-    alias: {
-      'pg-native': 'unenv/runtime/mock/empty',
-      'pg-hstore': 'unenv/runtime/mock/empty',
-    },
-    rollupConfig: {
-      external: ['pg-native', 'pg-hstore'],
-    },
     cloudflare: {
       pages: {
         routes: {

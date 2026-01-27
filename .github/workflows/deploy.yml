@@ -1,13 +1,15 @@
-name: Database Migration
+name: Deploy to Cloudflare Pages
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
 
 jobs:
   migrate_database:
     runs-on: ubuntu-latest
-    name: Run Sequelize Migration
+    name: Database Migration & Deploy
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -19,17 +21,34 @@ jobs:
           cache: "npm"
 
       - name: Install Dependencies
-        # Kita perlu install dependencies agar sequelize-cli bisa jalan
         run: npm ci
 
-      - name: Run Sequelize Migration
+      - name: Run DrizzleORM Migration
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NODE_ENV: production
-        run: npx sequelize-cli db:migrate
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          MODE: production
+        run: npm run db:push
 
       - name: Build Nuxt Application
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          MODE: production
         run: npm run build
 
-      - name: Clean Nuxt Auto-Config
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy .output/public --project-name=nyawitai
+
+      - name: Clean Up
         run: rm -f .output/server/wrangler.json || true

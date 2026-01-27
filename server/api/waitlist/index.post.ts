@@ -1,7 +1,8 @@
-import { Waitlist } from "~~/server/models"
-import { ApiResponse } from "~~/server/types";
+import { waitlists } from "~~/server/database/schema"
+import { ApiResponse } from "~~/server/types"
+import { db } from "~~/server/database/db"
 
-export default defineEventHandler(async (event): Promise<ApiResponse<Waitlist | null>> => {
+export default defineEventHandler(async (event): Promise<ApiResponse<typeof waitlists.$inferSelect | null>> => {
   const payload = await readBody(event)
 
   if (!payload.email) {
@@ -12,12 +13,12 @@ export default defineEventHandler(async (event): Promise<ApiResponse<Waitlist | 
     }
   }
 
-  const { email } = payload;
+  const { email } = payload
 
-  const createdWaitlistEntry = await Waitlist.create({ email }, { returning: true });
+  const createdWaitlistEntry = await db.insert(waitlists).values({ email }).returning()
 
   return {
-    data: createdWaitlistEntry,
+    data: createdWaitlistEntry[0],
     message: "Successfully added to waitlist.",
     success: true,
   }
