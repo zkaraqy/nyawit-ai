@@ -2,9 +2,3 @@ name = "nyawitai"
 pages_build_output_dir = ".output/public"
 compatibility_date = "2024-09-23"
 compatibility_flags = [ "nodejs_compat" ]
-
-[env.production]
-name = "nyawitai"
-
-[env.preview]
-name = "nyawitai-preview"
