@@ -21,11 +21,9 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'cloudflare-pages',
     noPublicDir: true,
-    cloudflare: {
-      pages: {
-        routes: {
-          exclude: ['/api/*']
-        }
+    rollupConfig: {
+      output: {
+        entryFileNames: '_worker.js',
       }
     },
   },

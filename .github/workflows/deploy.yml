@@ -43,12 +43,17 @@ jobs:
           MODE: production
         run: npm run build
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      - name: Remove Auto-generated Wrangler Config
+        run: |
+          rm -f .output/server/wrangler.json || true
+          rm -f dist/_worker.js/wrangler.json || true
+          find .output -name "wrangler.json" -delete || true
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .output/public --project-name=nyawitai --branch=main
-
-      - name: Clean Up
-        run: rm -f .output/server/wrangler.json || true
+          projectName: nyawitai
+          directory: .output/public
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
