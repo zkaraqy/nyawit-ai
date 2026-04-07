@@ -114,10 +114,10 @@ async function handleCreateWaitlist() {
         </div>
         <span class="text-xl font-display font-bold tracking-tight text-white">NyawitAI</span>
       </div>
-      <button
+      <NuxtLink to="/login"
         class="relative cursor-pointer z-10 px-5 py-2 text-sm font-bold text-emerald-900 bg-white rounded-full hover:bg-emerald-50 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
         Masuk / Daftar
-      </button>
+      </NuxtLink>
     </nav>
 
     <!-- Hero Section -->
