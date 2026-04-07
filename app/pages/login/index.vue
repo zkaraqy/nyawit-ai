@@ -35,7 +35,6 @@ const handleSubmit = () => {
 
 <template>
   <div class="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col justify-center items-center relative overflow-hidden selection:bg-emerald-200 selection:text-emerald-900">
-    
     <div class="absolute inset-0 z-0 bg-linear-to-br from-slate-50 via-emerald-50/30 to-teal-100/40 pointer-events-none"></div>
     <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
       <div v-for="n in 5" :key="n" class="absolute bg-emerald-400/20 rounded-full blur-2xl animate-float" :style="{
