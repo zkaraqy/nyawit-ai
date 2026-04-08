@@ -34,6 +34,7 @@
     "maplibre-gl": "^5.22.0",
     "midtrans-client": "^1.4.3",
     "nuxt": "^4.3.0",
+    "nuxt-auth-utils": "^0.5.29",
     "pg": "^8.17.2",
     "pinia": "^3.0.4",
     "postgres": "^3.4.8",

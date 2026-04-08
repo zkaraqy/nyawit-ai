@@ -1,51 +1,59 @@
-import { users, wallets } from '../../database/schema'
-import { verifyPassword, generateToken } from '../../utils/auth'
-import { eq } from 'drizzle-orm'
+import { users, wallets } from "../../database/schema";
+import { verifyPassword, generateToken } from "../../utils/auth";
+import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const { email, password } = body
+  const body = await readBody(event);
+  const { email, password } = body;
 
   if (!email || !password) {
     throw createError({
       statusCode: 400,
-      message: 'Email dan password harus diisi',
-    })
+      message: "Email dan password harus diisi",
+    });
   }
 
-  const db = event.context.db
+  const db = event.context.db;
 
   // Find user by email
-  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1)
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
   if (!user) {
     throw createError({
       statusCode: 401,
-      message: 'Email atau password salah',
-    })
+      message: "Email atau password salah",
+    });
   }
 
   // Verify password
-  const isValid = await verifyPassword(password, user.passwordHash)
+  const isValid = await verifyPassword(password, user.passwordHash!);
   if (!isValid) {
     throw createError({
       statusCode: 401,
-      message: 'Email atau password salah',
-    })
+      message: "Email atau password salah",
+    });
   }
 
   // Get wallet balance
-  const [wallet] = await db.select().from(wallets).where(eq(wallets.userId, user.id)).limit(1)
+  const [wallet] = await db
+    .select()
+    .from(wallets)
+    .where(eq(wallets.userId, user.id))
+    .limit(1);
 
   // Generate JWT
   const token = generateToken({
     userId: user.id,
     email: user.email,
     fullName: user.fullName,
-  })
+  });
 
   return {
     success: true,
-    message: 'Login berhasil',
+    message: "Login berhasil",
     data: {
       token,
       user: {
@@ -56,5 +64,5 @@ export default defineEventHandler(async (event) => {
       },
       balance: wallet?.balance ?? 0,
     },
-  }
-})
+  };
+});
