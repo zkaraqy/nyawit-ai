@@ -108,7 +108,7 @@ const resetScan = () => {
             </div>
             
             <div class="pt-2">
-              <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex justify-center items-center gap-2">
+              <button type="submit" class="text-nowrap w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex justify-center items-center gap-2">
                 Proses Area 
                 <span class="text-xs bg-emerald-800 px-2 py-0.5 rounded-full ml-1">-1 Token</span>
               </button>

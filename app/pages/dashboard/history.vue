@@ -3,9 +3,64 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-const { data, pending, error, refresh } = await useApiFetch<any>('/api/v1/analysis/history')
+interface HistoryItem {
+  id: number
+  province: string
+  sizeHectares: number
+  suitabilityScore: number
+  createdAt: string
+  resultMetadata?: {
+    soilType?: string
+    precipitationMs?: number
+    recommendedCrops?: string[]
+  }
+}
 
-const historyList = computed(() => data.value?.data || [])
+const { data, pending, refresh } = await useApiFetch<{ data: HistoryItem[] }>('/api/v1/analysis/history', {
+  default: () => ({ data: [] })
+})
+
+const cachedHistory = ref<HistoryItem[]>([])
+
+// Restore cache from localStorage on mount
+onMounted(() => {
+  const stored = localStorage.getItem('analysisHistory')
+  if (stored) {
+    try {
+      cachedHistory.value = JSON.parse(stored)
+    } catch (e) {
+      console.warn('Failed to parse cached history', e)
+    }
+  }
+})
+
+// Save to localStorage whenever data changes
+watch(
+  () => data.value?.data,
+  (items) => {
+    if (Array.isArray(items) && items.length > 0) {
+      cachedHistory.value = items
+      localStorage.setItem('analysisHistory', JSON.stringify(items))
+    }
+  },
+  { immediate: true }
+)
+
+const historyList = computed(() => {
+  const items = data.value?.data
+
+  if (Array.isArray(items)) {
+    if (items.length > 0) return items
+    // Show cache while pending or if data is empty
+    return cachedHistory.value
+  }
+
+  return cachedHistory.value
+})
+
+const refreshHistory = async () => {
+  await refresh()
+}
 
 const formatDate = (dateStr: string) => {
   const d = new Date(dateStr)
@@ -22,7 +77,7 @@ const formatDate = (dateStr: string) => {
         <h1 class="text-3xl font-bold text-slate-800">Riwayat Analisis</h1>
         <p class="text-slate-500 mt-2">Daftar lahan yang telah Anda pindai dan petakan.</p>
       </div>
-      <button @click="refresh()" class="bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer">
+      <button class="bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" :disabled="pending" @click="refreshHistory()">
         <Icon name="mdi:refresh" :class="{ 'animate-spin': pending }" class="text-lg" />
         Segarkan
       </button>
@@ -44,7 +99,7 @@ const formatDate = (dateStr: string) => {
     </div>
 
     <!-- Data list -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <NuxtLink :to="`/dashboard/analysis/${item.id}`" v-for="item in historyList" :key="item.id" class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-emerald-300 hover:shadow-lg hover:-translate-y-1 transition-all group overflow-hidden relative cursor-pointer block">
         
         <div class="absolute top-0 left-0 w-full h-1" 
