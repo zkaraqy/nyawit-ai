@@ -34,8 +34,8 @@ export const useAuth = () => {
     token.value = storedToken
     try {
       await fetchMe()
-    } catch {
       // Token expired or invalid — clear it
+    } catch {
       logout()
     }
   }

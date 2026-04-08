@@ -68,7 +68,7 @@ onMounted(async () => {
         </NuxtLink>
 
         <NuxtLink 
-          to="/dashboard/pengaturan" 
+          to="/dashboard/profile" 
           class="flex items-center gap-4 px-6 py-3.5 mx-4 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:translate-x-1 transition-all duration-300 font-bold text-[16px] group"
           exact-active-class="!bg-emerald-600 !text-white hover:!text-white shadow-md shadow-emerald-600/20 !translate-x-0"
         >
