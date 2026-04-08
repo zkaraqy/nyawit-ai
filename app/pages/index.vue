@@ -10,6 +10,8 @@ import {
 const landSize = ref<number | null>(null)
 const selectedProvince = ref('')
 const email = ref('')
+const auth = useAuth()
+const isSignedIn = ref(false)
 
 const provinces = [
   'Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Riau', 'Jambi',
@@ -27,11 +29,14 @@ const analysisLoading = ref(false)
 const appLoading = ref(true)
 const waitlistLoading = ref(false)
 
-onMounted(() => {
-  // Simulate loading mainly for the 3D assets visual
+onMounted(async () => {
+  if (!auth.isAuthenticated.value) {
+    await auth.init()
+  }
   setTimeout(() => {
     appLoading.value = false
-  }, 2000)
+  }, 1500)
+  isSignedIn.value = auth.isAuthenticated.value
 })
 
 const handleAnalyze = () => {
@@ -114,9 +119,9 @@ async function handleCreateWaitlist() {
         </div>
         <span class="text-xl font-display font-bold tracking-tight text-white">NyawitAI</span>
       </div>
-      <NuxtLink to="/login"
+      <NuxtLink :to="isSignedIn ? '/dashboard' : '/login'"
         class="relative cursor-pointer z-10 px-5 py-2 text-sm font-bold text-emerald-900 bg-white rounded-full hover:bg-emerald-50 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
-        Masuk / Daftar
+        {{ isSignedIn ? 'Dashboard' : 'Masuk / Daftar' }}
       </NuxtLink>
     </nav>
 

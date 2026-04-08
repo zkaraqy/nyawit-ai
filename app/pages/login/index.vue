@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+const auth = useAuth()
 
 const isLogin = ref(true)
-const isLoading = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
 
 const form = ref({
   name: '',
@@ -13,23 +14,41 @@ const form = ref({
 
 const toggleAuthMode = () => {
   isLogin.value = !isLogin.value
-  // Reset form saat pindah mode
+  errorMessage.value = ''
+  successMessage.value = ''
   form.value = { name: '', email: '', password: '', confirmPassword: '' }
 }
 
-const handleSubmit = () => {
-  if (!isLogin.value && form.value.password !== form.value.confirmPassword) {
-    alert('Password tidak cocok!')
-    return
-  }
+const handleSubmit = async () => {
+  errorMessage.value = ''
+  successMessage.value = ''
 
-  isLoading.value = true
-  // Simulasi pemanggilan API
-  setTimeout(() => {
-    isLoading.value = false
-    alert(isLogin.value ? `Berhasil masuk dengan email: ${form.value.email}` : 'Berhasil mendaftar! Silakan masuk.')
-    if (!isLogin.value) toggleAuthMode() // Kembali ke login setelah daftar
-  }, 1500)
+  if (isLogin.value) {
+    // Login flow
+    const result = await auth.login(form.value.email, form.value.password)
+    if (result.success) {
+      navigateTo('/dashboard')
+    } else {
+      errorMessage.value = result.message
+    }
+  } else {
+    // Register flow (within login page toggle)
+    if (form.value.password !== form.value.confirmPassword) {
+      errorMessage.value = 'Password tidak cocok!'
+      return
+    }
+    const result = await auth.register({
+      email: form.value.email,
+      password: form.value.password,
+      fullName: form.value.name,
+    })
+    if (result.success) {
+      successMessage.value = 'Registrasi berhasil! Silakan masuk.'
+      toggleAuthMode()
+    } else {
+      errorMessage.value = result.message
+    }
+  }
 }
 </script>
 
@@ -68,6 +87,16 @@ const handleSubmit = () => {
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-5">
+          
+          <!-- Error / Success Messages -->
+          <div v-if="errorMessage" class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium flex items-center gap-2">
+            <Icon name="mdi:alert-circle-outline" class="text-lg shrink-0" />
+            {{ errorMessage }}
+          </div>
+          <div v-if="successMessage" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium flex items-center gap-2">
+            <Icon name="mdi:check-circle-outline" class="text-lg shrink-0" />
+            {{ successMessage }}
+          </div>
           
           <div v-if="!isLogin" class="space-y-1.5 animate-fade-in-up" style="animation-duration: 0.4s;">
             <label class="text-sm font-semibold text-slate-700 block ml-1">Nama Lengkap</label>
@@ -122,11 +151,11 @@ const handleSubmit = () => {
             </div>
           </div>
 
-          <button type="submit" :disabled="isLoading"
+          <button type="submit" :disabled="auth.isLoading.value"
             class="w-full mt-2 py-3.5 px-6 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/30 transform transition-all active:scale-[0.98] flex justify-center items-center gap-2 group cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
-            <span v-if="!isLoading">{{ isLogin ? 'Masuk Sekarang' : 'Daftar Akun' }}</span>
+            <span v-if="!auth.isLoading.value">{{ isLogin ? 'Masuk Sekarang' : 'Daftar Akun' }}</span>
             <span v-else>Memproses...</span>
-            <Icon v-if="!isLoading" :name="isLogin ? 'mdi:login' : 'mdi:account-plus-outline'" class="group-hover:translate-x-1 transition-transform" />
+            <Icon v-if="!auth.isLoading.value" :name="isLogin ? 'mdi:login' : 'mdi:account-plus-outline'" class="group-hover:translate-x-1 transition-transform" />
             <Icon v-else name="svg-spinners:180-ring" />
           </button>
         </form>

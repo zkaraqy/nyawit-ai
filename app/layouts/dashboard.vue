@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+const auth = useAuth()
 
-const tokenBalance = ref(3)
+onMounted(async () => {
+  if (!auth.isAuthenticated.value) {
+    await auth.init()
+  }
+})
 </script>
 
 <template>
@@ -17,14 +21,14 @@ const tokenBalance = ref(3)
             
             <div class="flex flex-col">
               <div class="flex items-center gap-2">
-                <h2 class="text-[19px] font-extrabold text-slate-800">AgroCorp</h2>
+                <h2 class="text-[19px] font-extrabold text-slate-800">{{ auth.user.value?.fullName || 'User' }}</h2>
                 
                 <div class="flex items-center gap-1 px-2 py-0.5 bg-emerald-100 border border-emerald-200 rounded-md text-emerald-700 text-xs font-bold" title="Sisa Token">
                   <Icon name="mdi:hexagon-multiple" class="text-sm" />
-                  {{ tokenBalance }}
+                  {{ auth.balance.value }}
                 </div>
               </div>
-              <p class="text-slate-500 font-medium text-sm">B2B Investor</p>
+              <p class="text-slate-500 font-medium text-sm">{{ auth.user.value?.companyName || auth.user.value?.email }}</p>
             </div>
           </div>
           
@@ -75,7 +79,7 @@ const tokenBalance = ref(3)
 
       <!-- Logout Action -->
       <div class="p-4 mt-auto mb-4 border-t border-slate-100">
-        <button class="flex items-center gap-4 text-red-500 hover:bg-red-50 hover:text-red-600 w-full px-6 py-3.5 rounded-xl transition-all font-bold text-[16px] group cursor-pointer">
+        <button @click="auth.logout()" class="flex items-center gap-4 text-red-500 hover:bg-red-50 hover:text-red-600 w-full px-6 py-3.5 rounded-xl transition-all font-bold text-[16px] group cursor-pointer">
           <Icon name="mdi:logout" class="text-[24px] transform rotate-180 group-hover:-translate-x-1 transition-transform" />
           Keluar Aplikasi
         </button>

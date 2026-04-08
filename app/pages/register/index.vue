@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+const auth = useAuth()
 
-const isLoading = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
 
 const form = ref({
   name: '',
@@ -10,20 +11,27 @@ const form = ref({
   confirmPassword: ''
 })
 
-const handleRegister = () => {
+const handleRegister = async () => {
+  errorMessage.value = ''
+  successMessage.value = ''
+
   if (form.value.password !== form.value.confirmPassword) {
-    alert('Password dan Konfirmasi Password tidak cocok!')
+    errorMessage.value = 'Password dan Konfirmasi Password tidak cocok!'
     return
   }
 
-  isLoading.value = true
-  // Simulasi pemanggilan API
-  setTimeout(() => {
-    isLoading.value = false
-    alert('Pendaftaran berhasil! Silakan masuk.')
-    // Di sini biasanya ada navigasi ke halaman login:
-    // navigateTo('/login')
-  }, 1500)
+  const result = await auth.register({
+    email: form.value.email,
+    password: form.value.password,
+    fullName: form.value.name,
+  })
+
+  if (result.success) {
+    successMessage.value = 'Pendaftaran berhasil! Mengarahkan ke halaman login...'
+    setTimeout(() => navigateTo('/login'), 1500)
+  } else {
+    errorMessage.value = result.message
+  }
 }
 </script>
 
@@ -62,6 +70,16 @@ const handleRegister = () => {
         </div>
 
         <form @submit.prevent="handleRegister" class="space-y-5">
+          
+          <!-- Error / Success Messages -->
+          <div v-if="errorMessage" class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium flex items-center gap-2">
+            <Icon name="mdi:alert-circle-outline" class="text-lg shrink-0" />
+            {{ errorMessage }}
+          </div>
+          <div v-if="successMessage" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium flex items-center gap-2">
+            <Icon name="mdi:check-circle-outline" class="text-lg shrink-0" />
+            {{ successMessage }}
+          </div>
           
           <div class="space-y-1.5">
             <label class="text-sm font-semibold text-slate-700 block ml-1">Nama Lengkap</label>
@@ -119,11 +137,11 @@ const handleRegister = () => {
             </label>
           </div>
 
-          <button type="submit" :disabled="isLoading"
+          <button type="submit" :disabled="auth.isLoading.value"
             class="w-full mt-2 py-3.5 px-6 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/30 transform transition-all active:scale-[0.98] flex justify-center items-center gap-2 group cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
-            <span v-if="!isLoading">Daftar Akun</span>
+            <span v-if="!auth.isLoading.value">Daftar Akun</span>
             <span v-else>Memproses...</span>
-            <Icon v-if="!isLoading" name="mdi:account-plus-outline" class="group-hover:translate-x-1 transition-transform" />
+            <Icon v-if="!auth.isLoading.value" name="mdi:account-plus-outline" class="group-hover:translate-x-1 transition-transform" />
             <Icon v-else name="svg-spinners:180-ring" />
           </button>
         </form>

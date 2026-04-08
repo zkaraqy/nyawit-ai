@@ -4,12 +4,18 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-// --- State Management ---
-const tokenBalance = ref(3) // Nanti hubungkan dengan state global yang sama di layout
+const auth = useAuth()
+const tokenService = useToken()
+
 const landSize = ref<number | null>(null)
 const selectedProvince = ref('')
 const isAnalyzing = ref(false)
 const analysisResult = ref<any>(null)
+
+// Refresh balance on mount
+onMounted(() => {
+  tokenService.refreshBalance()
+})
 
 const provinces = [
   'Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Riau', 'Jambi',
@@ -19,34 +25,49 @@ const provinces = [
   'Papua', 'Papua Barat'
 ]
 
-// --- Core Functions ---
-const handleAnalyze = () => {
+const handleAnalyze = async () => {
   if (!landSize.value || !selectedProvince.value) return
   
-  if (tokenBalance.value <= 0) {
+  if (auth.balance.value <= 0) {
     alert('Saldo token habis! Silakan lakukan Top-Up.')
     return
   }
 
   isAnalyzing.value = true
   
-  setTimeout(() => {
-    tokenBalance.value -= 1 
-    isAnalyzing.value = false
-    
-    analysisResult.value = {
-      score: 87,
-      heatmapColor: 'bg-emerald-500', 
-      status: 'Sangat Layak',
-      catalog: {
-        soilType: 'Ultisol / Podsolik Merah Kuning',
-        elevation: '50 - 150 mdpl',
-        rainfall: '2.000 - 2.500 mm/tahun',
-        slope: 'Datar hingga Bergelombang (0-8%)'
+  try {
+    const res = await $api('/api/v1/analysis/scan', {
+      method: 'POST',
+      body: {
+        province: selectedProvince.value,
+        sizeHectares: landSize.value
       }
+    })
+
+    if (res.success) {
+      const data = res.data
+      
+      // Update balance
+      tokenService.refreshBalance()
+      tokenService.fetchHistory()
+
+      if(!data || !data.id) {
+        alert('Analisis selesai, namun tidak ada data yang dapat ditampilkan.')
+        isAnalyzing.value = false
+        return;
+      }
+
+      await navigateTo(`/dashboard/analysis/${data.id}`)
+    } else {
+      alert(res.message || 'Analisis gagal.')
     }
-  }, 2000)
+  } catch (error: any) {
+    alert(error.data?.message || 'Gagal melakukan analisis')
+  } finally {
+    isAnalyzing.value = false
+  }
 }
+
 
 const resetScan = () => {
   analysisResult.value = null
@@ -117,81 +138,6 @@ const resetScan = () => {
     <!-- STATE 2: Loading State -->
     <div v-else-if="isAnalyzing" class="w-full h-[60vh] flex flex-col items-center justify-center space-y-6">
       <Loading description="Menganalisis data satelit untuk lahan {{ landSize }} Ha di {{ selectedProvince }}." />
-    </div>
-
-    <!-- STATE 3: Result Output -->
-    <div v-else-if="analysisResult" class="animate-fade-in-up space-y-6">
-      <div class="flex justify-between items-end">
-        <div>
-          <h2 class="text-2xl font-display font-bold text-slate-900">Hasil Analisis Geospasial</h2>
-          <p class="text-slate-500 text-sm">Target: <span class="font-semibold text-slate-700">{{ selectedProvince }}</span> &bull; Luas: <span class="font-semibold text-slate-700">{{ landSize }} Ha</span></p>
-        </div>
-        <button @click="resetScan" class="px-5 py-2.5 bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-xl text-sm font-bold transition-all flex items-center gap-2">
-          <Icon name="mdi:magnify-plus-outline" class="text-lg" /> Pindai Area Lain
-        </button>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Peta 3D (Kiri) -->
-        <div class="lg:col-span-2 bg-slate-900 rounded-2xl overflow-hidden relative min-h-[450px] shadow-lg border border-slate-800">
-          <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
-          <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
-            <Icon name="mdi:earth" class="text-6xl text-emerald-500/50 mb-2" />
-            <p class="text-white/60 font-medium">[ Mapbox/CesiumJS Render Area ]</p>
-          </div>
-
-          <div class="absolute bottom-6 left-6 z-20 bg-white/90 backdrop-blur rounded-xl p-4 shadow-xl border border-white/20">
-            <p class="text-xs font-bold text-slate-800 mb-2 uppercase tracking-wider">Heatmap AI</p>
-            <div class="flex flex-col gap-2 text-xs font-medium text-slate-600">
-              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm bg-emerald-500"></div> Sangat Cocok</div>
-              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm bg-yellow-400"></div> Marginal</div>
-              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm bg-red-500"></div> Tidak Direkomendasikan</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Skor & Katalog (Kanan) -->
-        <div class="space-y-6">
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center text-center">
-            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Skor Kesesuaian Lahan</h3>
-            <div class="relative w-32 h-32 flex items-center justify-center mb-4">
-              <svg class="w-full h-full transform -rotate-90">
-                <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="12" fill="transparent" class="text-slate-100" />
-                <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="12" fill="transparent" :stroke-dasharray="351" :stroke-dashoffset="351 - (351 * analysisResult.score) / 100" class="text-emerald-500 transition-all duration-1000" stroke-linecap="round" />
-              </svg>
-              <span class="absolute text-3xl font-display font-extrabold text-slate-800">{{ analysisResult.score }}<span class="text-lg text-slate-400">%</span></span>
-            </div>
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-sm font-bold border border-emerald-100">
-              <div :class="`w-2.5 h-2.5 rounded-full ${analysisResult.heatmapColor} animate-pulse`"></div>
-              {{ analysisResult.status }}
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <Icon name="mdi:book-open-page-variant-outline" class="text-emerald-600" /> Info Topografi
-            </h3>
-            <ul class="space-y-4">
-              <li class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <span class="text-sm text-slate-500 flex items-center gap-2"><Icon name="mdi:terrain" class="text-slate-400" /> Elevasi</span>
-                <span class="text-sm font-semibold text-slate-800">{{ analysisResult.catalog.elevation }}</span>
-              </li>
-              <li class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <span class="text-sm text-slate-500 flex items-center gap-2"><Icon name="mdi:chart-bell-curve" class="text-slate-400" /> Kelerengan</span>
-                <span class="text-sm font-semibold text-slate-800">{{ analysisResult.catalog.slope }}</span>
-              </li>
-              <li class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <span class="text-sm text-slate-500 flex items-center gap-2"><Icon name="mdi:weather-pouring" class="text-slate-400" /> Curah Hujan</span>
-                <span class="text-sm font-semibold text-slate-800">{{ analysisResult.catalog.rainfall }}</span>
-              </li>
-              <li class="flex justify-between items-center">
-                <span class="text-sm text-slate-500 flex items-center gap-2"><Icon name="mdi:sprout" class="text-slate-400" /> Jenis Tanah</span>
-                <span class="text-sm font-semibold text-slate-800 text-right w-1/2">{{ analysisResult.catalog.soilType }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
 
   </div>
