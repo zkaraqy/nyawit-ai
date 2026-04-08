@@ -82,7 +82,7 @@ async function buyPackage(pkgCount: number) {
 
     <!-- Saldo & Status Card -->
     <div class="relative bg-linear-to-br from-emerald-600 to-emerald-800 rounded-3xl p-8 overflow-hidden shadow-xl shadow-emerald-900/20 text-white">
-      <div class="absolute -top-24 -right-24 w-64 h-64 bg-white/10 blur-3xl rounded-full"></div>
+      <div class="absolute -top-24 -right-24 w-64 h-64 bg-white/10 blur-3xl rounded-full"/>
       
       <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -96,7 +96,7 @@ async function buyPackage(pkgCount: number) {
           </p>
         </div>
         
-        <button @click="tokenService.refreshBalance()" class="self-start md:self-auto bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer">
+        <button @click="tokenService.refreshBalance()" class="self-start md:self-auto bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer text-nowrap">
           <Icon name="mdi:refresh" class="text-xl" :class="{ 'animate-spin': tokenService.isFetchingHistory.value }" />
           Segarkan Saldo
         </button>
@@ -113,7 +113,7 @@ async function buyPackage(pkgCount: number) {
           class="relative bg-white rounded-3xl p-6 border-2 transition-all hover:-translate-y-1 hover:shadow-xl group"
           :class="pkg.popular ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' : 'border-slate-100 hover:border-emerald-200'"
         >
-          <div v-if="pkg.popular" class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">
+          <div v-if="pkg.popular" class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest text-nowrap">
             Paling Laris
           </div>
           

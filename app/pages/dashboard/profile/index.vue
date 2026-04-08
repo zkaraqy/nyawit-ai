@@ -215,7 +215,7 @@ const updateProfile = async () => {
               </template>
               <template v-else>
                 <Icon name="mdi:content-save" class="text-xl" />
-                Simpan Perubahan
+                Simpan
               </template>
             </button>
           </div>

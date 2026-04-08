@@ -1,17 +1,40 @@
 <script setup lang="ts">
 const auth = useAuth()
+const sidebarOpen = ref(false)
 
 onMounted(async () => {
   if (!auth.isAuthenticated.value) {
     await auth.init()
   }
 })
+
+// Close sidebar ketika window di-resize ke desktop
+const handleResize = () => {
+  if (window.innerWidth >= 1024) {
+    sidebarOpen.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-slate-50/50 flex font-sans text-slate-900 selection:bg-emerald-200 selection:text-emerald-900">
     
-    <aside class="w-[300px] bg-white border-r border-slate-200 fixed h-full z-20 flex flex-col transition-all">
+    <!-- Overlay untuk mobile/tablet saat sidebar terbuka -->
+    <div 
+      v-if="sidebarOpen" 
+      class="fixed inset-0 bg-black/50 z-10 lg:hidden"
+      @click="sidebarOpen = false"
+    />
+    
+    <aside class="w-[300px] bg-white border-r border-slate-200 fixed h-full z-20 flex flex-col transition-all lg:translate-x-0" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
       
       <!-- Profil Section -->
       <div class="pt-8 px-6 pb-4 flex flex-col gap-6 border-b border-slate-100">
@@ -32,9 +55,11 @@ onMounted(async () => {
             </div>
           </div>
           
-          <button class="text-slate-400 hover:text-emerald-600 transition-colors mb-5">
-            <Icon name="mdi:dots-horizontal" class="text-xl" />
-          </button>
+          <!-- Menu button hanya tampil di mobile/tablet, hilang di desktop -->
+          <button 
+            class="text-slate-400 hover:text-emerald-600 transition-colors mb-5 lg:hidden"
+            @click="sidebarOpen = !sidebarOpen"
+          />
         </div>
       </div>
 
@@ -86,9 +111,17 @@ onMounted(async () => {
       </div>
     </aside>
 
-    <main class="ml-[300px] flex-1 flex flex-col relative h-screen">
+    <main class="ml-0 lg:ml-[300px] flex-1 flex flex-col relative min-h-screen lg:h-screen">
       
-      <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10 shrink-0">
+      <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-10 shrink-0">
+        
+        <!-- Toggle Sidebar Button untuk mobile/tablet -->
+        <button 
+          class="lg:hidden text-slate-600 hover:text-emerald-600 transition-colors mr-4"
+          @click="sidebarOpen = !sidebarOpen"
+        >
+          <Icon name="mdi:menu" class="text-2xl" />
+        </button>
         
         <div class="hidden md:flex items-center gap-3 w-96">
           <div class="relative w-full group">
@@ -105,7 +138,7 @@ onMounted(async () => {
         </div>
       </header>
 
-      <div class="flex-1 overflow-y-auto p-8">
+      <div class="flex-1 overflow-y-visible lg:overflow-y-auto p-3 sm:p-6 lg:p-8 pb-6 sm:pb-10">
         <slot />
       </div>
 

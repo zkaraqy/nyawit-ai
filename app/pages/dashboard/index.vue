@@ -77,7 +77,7 @@ const resetScan = () => {
 </script>
 
 <template>
-  <div class="p-8 max-w-7xl mx-auto w-full">
+  <div class="max-w-6xl mx-auto w-full">
     
     <!-- Header Halaman -->
     <div class="mb-8">
@@ -121,7 +121,7 @@ const resetScan = () => {
           <div class="flex gap-3">
             <Icon name="mdi:information" class="text-blue-500 text-xl shrink-0" />
             <p class="text-xs text-blue-800 leading-relaxed font-medium">
-              Sistem akan memotong 1 Token untuk setiap analisis yang berhasil. Pastikan target provinsi dan luasan lahan akurat.
+              Sistem akan memotong "satu" Token untuk setiap analisis yang berhasil. Pastikan target provinsi dan luasan lahan akurat.
             </p>
           </div>
         </div>
@@ -131,7 +131,7 @@ const resetScan = () => {
       <div class="w-full lg:w-2/3 bg-slate-200/50 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 min-h-[450px]">
         <Icon name="mdi:map-search-outline" class="text-6xl mb-4 text-slate-300" />
         <p class="font-medium text-slate-500">Area Visualisasi 3D</p>
-        <p class="text-sm">Silakan masukkan parameter di panel kiri untuk memulai render.</p>
+        <p class="text-sm text-slate-500 px-4 text-center">Silakan masukkan parameter di panel kiri untuk memulai render.</p>
       </div>
     </div>
 

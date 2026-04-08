@@ -17,14 +17,14 @@ const formatDate = (dateStr: string) => {
 <template>
   <div class="max-w-6xl mx-auto space-y-8">
     
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-5">
       <div>
         <h1 class="text-3xl font-bold text-slate-800">Riwayat Analisis</h1>
         <p class="text-slate-500 mt-2">Daftar lahan yang telah Anda pindai dan petakan.</p>
       </div>
       <button @click="refresh()" class="bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer">
         <Icon name="mdi:refresh" :class="{ 'animate-spin': pending }" class="text-lg" />
-        Segarkan Data
+        Segarkan
       </button>
     </div>
 
