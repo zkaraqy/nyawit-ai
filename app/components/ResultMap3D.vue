@@ -6,6 +6,7 @@ const props = defineProps<{
   province: string
   score: number
   sizeHectares: number
+  geoJsonData?: any[]
 }>()
 
 const mapContainer = ref<HTMLElement | null>(null)
@@ -80,79 +81,147 @@ onMounted(() => {
   map.on('load', () => {
     if (!map) return
 
-    // Create a mock bounding box around the center based on size (rough estimate)
-    // 1 hectare = 10,000 sqm. Let's just create a dynamic size square
-    const offset = Math.sqrt(props.sizeHectares) * 0.0001
-    
-    const polygon = [
-      [center[0] - offset, center[1] - offset],
-      [center[0] + offset, center[1] - offset],
-      [center[0] + offset, center[1] + offset],
-      [center[0] - offset, center[1] + offset],
-      [center[0] - offset, center[1] - offset]
-    ]
-
-    map.addSource('land-area', {
-      type: 'geojson',
-      data: {
-        type: 'Feature',
-        geometry: {
-          type: 'Polygon',
-          coordinates: [polygon]
-        },
-        properties: {}
-      }
-    })
-
-    const color = getColor(props.score)
-
-    // Fill layer
-    map.addLayer({
-      id: 'land-area-fill',
-      type: 'fill',
-      source: 'land-area',
-      paint: {
-        'fill-color': color,
-        'fill-opacity': 0.4
-      }
-    })
-
-    // Outline layer
-    map.addLayer({
-      id: 'land-area-line',
-      type: 'line',
-      source: 'land-area',
-      paint: {
-        'line-color': color,
-        'line-width': 3
-      }
-    })
-
-    // Add a pulsing point in the middle
-    map.addSource('center-point', {
-      type: 'geojson',
-      data: {
+    // JIKA ADA DATA GEOJSON ASLI DARI ML PYTHON
+    if (props.geoJsonData && props.geoJsonData.length > 0) {
+      
+      const features = props.geoJsonData.map((pt: any) => ({
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: center
+          coordinates: [pt.lon, pt.lat]
         },
-        properties: {}
-      }
-    })
+        properties: {
+          id: pt.id,
+          class: pt.class,
+          confidence: pt.confidence,
+          color: pt.color
+        }
+      }))
 
-    map.addLayer({
-      id: 'center-point-layer',
-      type: 'circle',
-      source: 'center-point',
-      paint: {
-        'circle-radius': 8,
-        'circle-color': color,
-        'circle-opacity': 0.8,
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#ffffff'
+      map.addSource('ml-points', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: features
+        }
+      })
+
+      // Add points as circles
+      map.addLayer({
+        id: 'ml-points-layer',
+        type: 'circle',
+        source: 'ml-points',
+        paint: {
+          // Gunakan warna dari property (biasanya #0000FF, #00FF00, #FF0000 dari Python)
+          'circle-color': ['get', 'color'],
+          'circle-radius': 6,
+          'circle-opacity': 0.8,
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#FFFFFF'
+        }
+      })
+
+      // Add small text label indicating confidence score
+      map.addLayer({
+        id: 'ml-points-labels',
+        type: 'symbol',
+        source: 'ml-points',
+        layout: {
+          'text-field': ['concat', ['round', ['*', ['get', 'confidence'], 100]], '%'],
+          'text-size': 10,
+          'text-offset': [0, 1.5],
+          'text-anchor': 'top'
+        },
+        paint: {
+          'text-color': '#FFFFFF',
+          'text-halo-color': '#000000',
+          'text-halo-width': 1
+        }
+      })
+
+      // Center map on the first point
+      if (features.length > 0) {
+        map.flyTo({
+          center: features[0].geometry.coordinates,
+          zoom: 12,
+          speed: 1.5
+        });
       }
-    })
+
+    } else {
+      // DEFAULT MOCK POLYGON (Jika Tidak Ada Data GeoJson dari Python)
+      const offset = Math.sqrt(props.sizeHectares) * 0.0001
+      
+      const polygon = [
+        [center[0] - offset, center[1] - offset],
+        [center[0] + offset, center[1] - offset],
+        [center[0] + offset, center[1] + offset],
+        [center[0] - offset, center[1] + offset],
+        [center[0] - offset, center[1] - offset]
+      ]
+
+      map.addSource('land-area', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [polygon]
+          },
+          properties: {}
+        }
+      })
+
+      const color = getColor(props.score)
+
+      // Fill layer
+      map.addLayer({
+        id: 'land-area-fill',
+        type: 'fill',
+        source: 'land-area',
+        paint: {
+          'fill-color': color,
+          'fill-opacity': 0.4
+        }
+      })
+
+      // Outline layer
+      map.addLayer({
+        id: 'land-area-line',
+        type: 'line',
+        source: 'land-area',
+        paint: {
+          'line-color': color,
+          'line-width': 3
+        }
+      })
+
+      // Add a pulsing point in the middle
+      map.addSource('center-point', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: center
+          },
+          properties: {}
+        }
+      })
+
+      map.addLayer({
+        id: 'center-point-layer',
+        type: 'circle',
+        source: 'center-point',
+        paint: {
+          'circle-radius': 8,
+          'circle-color': color,
+          'circle-opacity': 0.8,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      })
+    }
   })
 })
 

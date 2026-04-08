@@ -58,6 +58,7 @@ const formatDate = (dateStr: string) => {
             :province="rData.province" 
             :score="rData.suitabilityScore" 
             :size-hectares="rData.sizeHectares" 
+            :geo-json-data="rData.resultMetadata?.geoJsonData"
             class="rounded-3xl"
           />
         </div>

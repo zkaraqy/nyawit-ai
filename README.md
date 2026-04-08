@@ -56,7 +56,17 @@ Open Drizzle Studio (Database GUI):
 npm run db:studio
 ```
 
+```bash
+pip install semua nya dulu wwkwkw
+```
+
 ## Development Server
+
+Start the python ML engine on `http://localhost:8000`:
+```bash
+cd ml-engine
+uvicorn main:app --reload 
+```
 
 Start the development server on `http://localhost:3000`:
 

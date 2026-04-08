@@ -5,6 +5,10 @@
 .nitro
 .cache
 dist
+ml-engine/__pycache__
+ml-engine/venv
+ml-engine/kunci-sawit.json
+ml-engine/model_sawit_final.h5
 
 # Node dependencies
 node_modules
