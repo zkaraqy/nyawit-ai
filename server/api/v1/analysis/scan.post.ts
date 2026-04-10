@@ -76,14 +76,14 @@ export default defineEventHandler(async (event) => {
     }
 
     // Panggil Python ML Engine API
-    const mlResponse: any = await $fetch('http://localhost:8000/api/scan', {
+    const mlResponse: any = await $fetch('https://nyawit-ai-ml-656502826232.asia-southeast2.run.app/api/scan', {
       method: 'POST',
       body: { 
         lat_min: latMin, 
         lat_max: latMax, 
-        lon_min: lonMin, 
+        lon_min: lonMin,
         lon_max: lonMax,
-        grid_size: 5 // sebagai mvp bisa diatur ke 10 untuk testing, tapi untuk produksi sebaiknya 100 atau lebih untuk hasil yang lebih akurat
+        grid_size: 3 // sebagai mvp bisa diatur ke 10 untuk testing, tapi untuk produksi sebaiknya 100 atau lebih untuk hasil yang lebih akurat
       }
     })
 

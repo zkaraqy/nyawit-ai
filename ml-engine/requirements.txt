@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+earthengine-api
+requests
+numpy
+tensorflow-cpu
+Pillow

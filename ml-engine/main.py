@@ -6,10 +6,21 @@ import requests
 import numpy as np
 import os
 from tensorflow.keras.models import load_model
+from tensorflow.keras.layers import Dense # <-- ADDED: Import Dense layer
 from PIL import Image
 from io import BytesIO
 
 app = FastAPI()
+
+# --- ADDED: THE KERAS HACK CLASS ---
+# This safely intercepts the Dense layer configuration and removes 
+# the 'quantization_config' that causes Keras 3 to crash.
+class SafeDense(Dense):
+    @classmethod
+    def from_config(cls, config):
+        config.pop('quantization_config', None)
+        return super().from_config(config)
+# -----------------------------------
 
 # 1. SETUP MODEL & GEE SAAT SERVER START
 print("🔄 Memuat model & autentikasi GEE...")
@@ -18,7 +29,11 @@ with open(key_path) as f:
     key_content = json.load(f)
 credentials = ee.ServiceAccountCredentials(key_content['client_email'], key_path)
 ee.Initialize(credentials)
-model = load_model('model_sawit_final.h5')
+
+# --- UPDATED: LOAD MODEL WITH HACK ---
+# Tell TensorFlow to use our SafeDense class whenever it sees a Dense layer in the .h5 file
+model = load_model('model_sawit_final.h5', custom_objects={'Dense': SafeDense})
+# -------------------------------------
 
 CLASSES = ['Lahan Potensial', 'Kebun Sawit', 'Tidak Layak']
 COLORS = ['#0000FF', '#FF0000', '#FF0000']
@@ -29,7 +44,7 @@ class ScanRequest(BaseModel):
     lat_max: float
     lon_min: float
     lon_max: float
-    grid_size: int = 5
+    grid_size: int = 3
 
 # 3. ENDPOINT UNTUK DIPANGGIL OLEH NUXT
 @app.post("/api/scan")
@@ -46,6 +61,7 @@ def scan_area(req: ScanRequest):
             point = ee.Geometry.Point([lon, lat])
             region = point.buffer(250).bounds()
             print(f"📍 Memproses titik {count}: ({lat:.4f}, {lon:.4f})")
+            
             # Ambil Citra
             image = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
                 .filterBounds(region).filterDate('2023-01-01', '2023-12-31') \
