@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
         lat_max: latMax, 
         lon_min: lonMin,
         lon_max: lonMax,
-        grid_size: 3 // sebagai mvp bisa diatur ke 10 untuk testing, tapi untuk produksi sebaiknya 100 atau lebih untuk hasil yang lebih akurat
+        grid_size: 5 // sebagai mvp bisa diatur ke 10 untuk testing, tapi untuk produksi sebaiknya 100 atau lebih untuk hasil yang lebih akurat
       }
     })
 
