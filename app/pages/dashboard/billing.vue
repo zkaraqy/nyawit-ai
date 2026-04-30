@@ -96,7 +96,7 @@ async function buyPackage(pkgCount: number) {
           </p>
         </div>
         
-        <button @click="tokenService.refreshBalance()" class="self-start md:self-auto bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer text-nowrap">
+        <button @click="tokenService.refreshBalance()" data-testid="billing-refresh-balance" class="self-start md:self-auto bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer text-nowrap">
           <Icon name="mdi:refresh" class="text-xl" :class="{ 'animate-spin': tokenService.isFetchingHistory.value }" />
           Segarkan Saldo
         </button>
@@ -132,6 +132,7 @@ async function buyPackage(pkgCount: number) {
           <button 
             @click="buyPackage(pkg.id)" 
             :disabled="tokenService.isCharging.value"
+            :data-testid="`billing-buy-package-${pkg.id}`"
             class="w-full py-3.5 rounded-xl font-bold transition-all flex justify-center items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             :class="pkg.popular ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/30' : 'bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700'"
           >

@@ -1,5 +1,5 @@
 import { users, wallets } from "../../database/schema";
-import { verifyPassword, generateToken } from "../../utils/auth";
+import { verifyPw, generateToken } from "../../utils/auth";
 import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Verify password
-  const isValid = await verifyPassword(password, user.passwordHash!);
+  const isValid = await verifyPw(password, user.passwordHash!);
   if (!isValid) {
     throw createError({
       statusCode: 401,

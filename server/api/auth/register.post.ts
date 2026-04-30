@@ -1,5 +1,5 @@
 import { users, wallets } from '../../database/schema'
-import { hashPassword, generateToken } from '../../utils/auth'
+import { hashPw, generateToken } from '../../utils/auth'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Hash password and create user
-  const passwordHash = await hashPassword(password)
+  const passwordHash = await hashPw(password)
 
   const [newUser] = await db.insert(users).values({
     email,

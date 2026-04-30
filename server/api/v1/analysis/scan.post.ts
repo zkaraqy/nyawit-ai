@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
 
   const province = body.province || 'Unknown'
   const sizeHectares = Number(body.sizeHectares) || 1
+  const config = useRuntimeConfig()
 
   // 1. Transaction to guarantee atomic deduction
   const analysisRecord = await db.transaction(async (tx) => {
@@ -75,17 +76,54 @@ export default defineEventHandler(async (event) => {
         latMin = -1.0; latMax = -0.5; lonMin = 132.0; lonMax = 132.5; break;
     }
 
-    // Panggil Python ML Engine API
-    const mlResponse: any = await $fetch('https://nyawit-ai-ml-656502826232.asia-southeast2.run.app/api/scan', {
-      method: 'POST',
-      body: { 
-        lat_min: latMin, 
-        lat_max: latMax, 
-        lon_min: lonMin,
-        lon_max: lonMax,
-        grid_size: 5 // sebagai mvp bisa diatur ke 10 untuk testing, tapi untuk produksi sebaiknya 100 atau lebih untuk hasil yang lebih akurat
-      }
-    })
+    const shouldMockMl =
+      process.env.NUXT_E2E_MOCK_ML === 'true' ||
+      process.env.NUXT_E2E_MOCK_ML === '1'
+
+    const mlResponse: any = shouldMockMl
+      ? {
+          suitabilityScore: 87,
+          geojsondata: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                properties: { score: 87 },
+                geometry: {
+                  type: 'Polygon',
+                  coordinates: [
+                    [
+                      [lonMin, latMin],
+                      [lonMax, latMin],
+                      [lonMax, latMax],
+                      [lonMin, latMax],
+                      [lonMin, latMin],
+                    ],
+                  ],
+                },
+              },
+            ],
+          },
+          total_points: 25,
+          risks: [
+            { type: 'Kelerengan', probability: 'Sedang' },
+            { type: 'Curah Hujan', probability: 'Rendah' },
+          ],
+          soilType: 'Latosol',
+          elevationRange: '0–200 mdpl',
+          precipitationMs: 2400,
+          recommendedCrops: ['Kelapa Sawit'],
+        }
+      : await $fetch((config as any).mlEngineUrl || 'https://nyawit-ai-ml-656502826232.asia-southeast2.run.app/api/scan', {
+          method: 'POST',
+          body: {
+            lat_min: latMin,
+            lat_max: latMax,
+            lon_min: lonMin,
+            lon_max: lonMax,
+            grid_size: 5, // untuk produksi sebaiknya lebih tinggi
+          },
+        })
 
     // 3. Simpan hasil Python ke Database PostgreSQL (tabel analysisHistory)
     const scanResult = await tx.insert(analysisHistory).values({

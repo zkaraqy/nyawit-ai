@@ -162,6 +162,7 @@ const handleSubmit = async () => {
                 v-model="form.email"
                 type="email"
                 placeholder="alamat@email.com"
+                data-testid="login-email"
                 class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 font-sans"
                 required
               />
@@ -191,6 +192,7 @@ const handleSubmit = async () => {
                 v-model="form.password"
                 type="password"
                 placeholder="••••••••"
+                data-testid="login-password"
                 class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 font-sans"
                 required
               />
@@ -224,6 +226,7 @@ const handleSubmit = async () => {
           <button
             type="submit"
             :disabled="auth.isLoading.value"
+            :data-testid="isLogin ? 'login-submit' : 'login-register-submit'"
             class="w-full mt-2 py-3.5 px-6 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/30 transform transition-all active:scale-[0.98] flex justify-center items-center gap-2 group cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span v-if="!auth.isLoading.value">{{
@@ -252,6 +255,7 @@ const handleSubmit = async () => {
           <button
             @click="toggleAuthMode"
             type="button"
+            data-testid="login-toggle-mode"
             class="font-bold text-emerald-600 hover:text-emerald-500 transition-colors cursor-pointer focus:outline-none"
           >
             {{ isLogin ? "Daftar di sini" : "Masuk sekarang" }}

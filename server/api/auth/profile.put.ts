@@ -1,5 +1,5 @@
 import { users } from '../../database/schema'
-import { extractBearerToken, verifyToken, hashPassword } from '../../utils/auth'
+import { extractBearerToken, verifyToken, hashPw } from '../../utils/auth'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {

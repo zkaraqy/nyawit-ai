@@ -51,7 +51,7 @@ onUnmounted(() => {
                   {{ auth.balance.value }}
                 </div>
               </div>
-              <p class="text-slate-500 font-medium text-sm">{{ auth.user.value?.companyName || auth.user.value?.email }}</p>
+              <!-- <p class="text-slate-500 font-medium text-sm">{{ auth.user.value?.companyName || auth.user.value?.email }}</p> -->
             </div>
           </div>
           

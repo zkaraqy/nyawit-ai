@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   const expectedSignature = crypto.createHash('sha512').update(`${order_id}${status_code}${gross_amount}${serverKey}`).digest('hex')
 
   if (signature_key !== expectedSignature) {
-    throw createError({ statusCode: 400, message: 'Invalid signature' })
+    throw createError({ statusCode: 400, message: `Invalid signature. expected: ${expectedSignature}, got: ${signature_key}. src: ${order_id}200${gross_amount}${serverKey}` })
   }
 
   // Find transaction

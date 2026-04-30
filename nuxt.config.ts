@@ -29,6 +29,8 @@ export default defineNuxtConfig({
     sessionSecret:
       process.env.NUXT_SESSION_SECRET ||
       "dev-secret-key-min-32-characters-long",
+    // ML engine endpoint (server-side only)
+    mlEngineUrl: process.env.ML_ENGINE_URL || "http://localhost:8000/api/scan",
     midtransServerKey: process.env.MIDTRANS_SERVER_KEY || "",
     midtransIsProduction: process.env.MIDTRANS_IS_PRODUCTION === "true",
     // Client-exposed (public) keys

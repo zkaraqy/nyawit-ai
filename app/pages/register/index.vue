@@ -38,16 +38,18 @@ const handleRegister = async () => {
 <template>
   <div class="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col justify-center items-center relative overflow-hidden selection:bg-emerald-200 selection:text-emerald-900">
     <div class="absolute inset-0 z-0 bg-linear-to-br from-slate-50 via-emerald-50/30 to-teal-100/40 pointer-events-none"></div>
-    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      <div v-for="n in 5" :key="n" class="absolute bg-emerald-400/20 rounded-full blur-2xl animate-float" :style="{
-        width: Math.random() * 150 + 100 + 'px',
-        height: Math.random() * 150 + 100 + 'px',
-        top: Math.random() * 100 + '%',
-        left: Math.random() * 100 + '%',
-        animationDelay: Math.random() * 5 + 's',
-        animationDuration: Math.random() * 10 + 10 + 's'
-      }"></div>
-    </div>
+    <ClientOnly>
+      <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div v-for="n in 5" :key="n" class="absolute bg-emerald-400/20 rounded-full blur-2xl animate-float" :style="{
+          width: Math.random() * 150 + 100 + 'px',
+          height: Math.random() * 150 + 100 + 'px',
+          top: Math.random() * 100 + '%',
+          left: Math.random() * 100 + '%',
+          animationDelay: Math.random() * 5 + 's',
+          animationDuration: Math.random() * 10 + 10 + 's'
+        }"></div>
+      </div>
+    </ClientOnly>
 
     <div class="relative z-10 w-full max-w-md px-6 animate-fade-in-up py-12">
       
@@ -87,7 +89,7 @@ const handleRegister = async () => {
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
                 <Icon name="mdi:account-outline" class="text-lg" />
               </div>
-              <input v-model="form.name" type="text" placeholder="John Doe"
+              <input v-model="form.name" type="text" placeholder="John Doe" data-testid="register-fullname"
                 class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 font-sans"
                 required />
             </div>
@@ -99,7 +101,7 @@ const handleRegister = async () => {
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
                 <Icon name="mdi:email-outline" class="text-lg" />
               </div>
-              <input v-model="form.email" type="email" placeholder="alamat@email.com"
+              <input v-model="form.email" type="email" placeholder="alamat@email.com" data-testid="register-email"
                 class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 font-sans"
                 required />
             </div>
@@ -111,7 +113,7 @@ const handleRegister = async () => {
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
                 <Icon name="mdi:lock-outline" class="text-lg" />
               </div>
-              <input v-model="form.password" type="password" placeholder="••••••••"
+              <input v-model="form.password" type="password" placeholder="••••••••" data-testid="register-password"
                 class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 font-sans"
                 required minlength="8" />
             </div>
@@ -123,7 +125,7 @@ const handleRegister = async () => {
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
                 <Icon name="mdi:lock-check-outline" class="text-lg" />
               </div>
-              <input v-model="form.confirmPassword" type="password" placeholder="••••••••"
+              <input v-model="form.confirmPassword" type="password" placeholder="••••••••" data-testid="register-confirm-password"
                 class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 font-sans"
                 required />
             </div>
@@ -137,7 +139,7 @@ const handleRegister = async () => {
             </label>
           </div>
 
-          <button type="submit" :disabled="auth.isLoading.value"
+          <button type="submit" :disabled="auth.isLoading.value" data-testid="register-submit"
             class="w-full mt-2 py-3.5 px-6 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/30 transform transition-all active:scale-[0.98] flex justify-center items-center gap-2 group cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
             <span v-if="!auth.isLoading.value">Daftar Akun</span>
             <span v-else>Memproses...</span>

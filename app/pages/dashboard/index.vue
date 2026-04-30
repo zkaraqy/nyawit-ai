@@ -97,18 +97,18 @@ const resetScan = () => {
           <form @submit.prevent="handleAnalyze" class="space-y-5">
             <div class="space-y-1.5">
               <label class="text-sm font-semibold text-slate-700">Provinsi</label>
-              <select v-model="selectedProvince" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all" required>
+              <select v-model="selectedProvince" data-testid="analysis-province" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all" required>
                 <option value="" disabled>Pilih provinsi...</option>
                 <option v-for="prov in provinces" :key="prov" :value="prov">{{ prov }}</option>
               </select>
             </div>
             <div class="space-y-1.5">
               <label class="text-sm font-semibold text-slate-700">Luas Lahan (Hektar)</label>
-              <input v-model="landSize" type="number" placeholder="Contoh: 1500" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all" required />
+              <input v-model="landSize" data-testid="analysis-size-hectares" type="number" placeholder="Contoh: 1500" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all" required />
             </div>
             
             <div class="pt-2">
-              <button type="submit" class="text-nowrap w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex justify-center items-center gap-2">
+              <button type="submit" data-testid="analysis-submit" class="text-nowrap w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex justify-center items-center gap-2">
                 Proses Area 
                 <span class="text-xs bg-emerald-800 px-2 py-0.5 rounded-full ml-1">-1 Token</span>
               </button>
@@ -137,7 +137,7 @@ const resetScan = () => {
 
     <!-- STATE 2: Loading State -->
     <div v-else-if="isAnalyzing" class="w-full h-[60vh] flex flex-col items-center justify-center space-y-6">
-      <Loading description="Menganalisis data satelit untuk lahan {{ landSize }} Ha di {{ selectedProvince }}." />
+      <Loading :description="`Menganalisis data satelit untuk lahan ${landSize} Ha di ${selectedProvince}.`" />
     </div>
 
   </div>
