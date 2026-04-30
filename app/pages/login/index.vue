@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const auth = useAuth();
+const route = useRoute();
 
 const isLogin = ref(true);
 const errorMessage = ref("");
@@ -10,6 +11,21 @@ const form = ref({
   email: "",
   password: "",
   confirmPassword: "",
+});
+
+onMounted(() => {
+  const token = route.query.token as string;
+  const error = route.query.error as string;  
+  if (token) {
+    localStorage.setItem('nyawit_auth_token', token);
+    auth.init().then(() => {
+      navigateTo("/dashboard");
+    });
+  }
+  
+  if (error) {
+    errorMessage.value = `Autentikasi gagal: ${error}`;
+  }
 });
 
 const toggleAuthMode = () => {
