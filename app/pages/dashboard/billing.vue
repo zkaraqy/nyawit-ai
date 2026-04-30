@@ -26,9 +26,11 @@ const packages = [
   { id: 3, title: 'Paket Enterprise', tokens: 100, price: 350000 },
 ]
 
-onMounted(() => {
-  tokenService.fetchHistory()
-  tokenService.refreshBalance()
+onMounted(async () => {
+  await Promise.allSettled([
+    tokenService.refreshBalance(),
+    tokenService.fetchHistory()
+  ])
 })
 
 const formatCurrency = (amount: number) => {
@@ -40,8 +42,8 @@ const formatDate = (dateStr: string) => {
   return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(d)
 }
 
-async function buyPackage(pkgCount: number) {
-  const res = await tokenService.requestTopup(pkgCount)
+async function buyPackage(pkgId: number) {
+  const res = await tokenService.requestTopup(pkgId)
   if (res.success && 'data' in res && res.data.snapToken) {
     // @ts-ignore
     if (window.snap) {

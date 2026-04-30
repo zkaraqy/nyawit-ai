@@ -67,7 +67,7 @@ export const useToken = () => {
   }
 
   /** Request top-up via Midtrans Snap */
-  async function requestTopup(packageCount: number) {
+  async function requestTopup(pkgId: number) {
     if (!auth.isAuthenticated.value) return { success: false, message: 'Harap login' }
     
     isCharging.value = true
@@ -75,7 +75,7 @@ export const useToken = () => {
       const response = await $fetch<{ success: boolean; data: { snapToken: string; redirectUrl: string } }>('/api/v1/billing/topup', {
         method: 'POST',
         headers: auth.getAuthHeaders(),
-        body: { packageCount },
+        body: { pkgId },
       })
       
       return response

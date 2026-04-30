@@ -36,4 +36,8 @@ export default defineNuxtConfig({
       midtransClientKey: process.env.MIDTRANS_CLIENT_KEY || "",
     },
   },
+
+  imports: {
+    dirs: ['shared/package.ts']
+  }
 });

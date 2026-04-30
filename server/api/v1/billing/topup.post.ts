@@ -1,6 +1,8 @@
 import midtransClient from 'midtrans-client'
 import { transactions } from '../../../database/schema'
 import { randomUUID } from 'node:crypto'
+import { packages } from '~~/shared/package'
+
 
 // Initialize Midtrans Snap
 const snap = new midtransClient.Snap({
@@ -16,17 +18,22 @@ export default defineEventHandler(async (event) => {
   const db = event.context.db
   const body = await readBody(event)
 
-  const packageCount = Number(body.packageCount) || 1
-  if (packageCount < 1) {
+  const pkgId = Number(body.pkgId) || 1
+  if (pkgId < 1) {
     throw createError({ statusCode: 400, message: 'Minimal top up 1 paket' })
   }
 
-  // Define pricing: 1 package = 10 tokens = Rp 50.000
-  const TOKEN_PER_PACKAGE = 10
-  const PRICE_PER_PACKAGE = 50000
+  const pkg = packages.find((p) => p.id === pkgId)
+  if (!pkg) {
+    throw createError({ statusCode: 400, message: 'Paket tidak ditemukan' })
+  }
 
-  const tokensToAdd = packageCount * TOKEN_PER_PACKAGE
-  const grossAmount = packageCount * PRICE_PER_PACKAGE
+  // Define pricing: 1 package = 10 tokens = Rp 50.000
+  const TOKEN_PER_PACKAGE = pkg.tokens
+  const PRICE_PER_PACKAGE = pkg.price
+
+  const tokensToAdd = TOKEN_PER_PACKAGE
+  const grossAmount = PRICE_PER_PACKAGE
   const orderId = `NYA-${Date.now()}-${randomUUID().substring(0, 8)}`
 
   // Insert a pending transaction in database
@@ -52,14 +59,14 @@ export default defineEventHandler(async (event) => {
     item_details: [{
       id: "TOKEN_ANALISIS",
       price: PRICE_PER_PACKAGE,
-      quantity: packageCount,
+      quantity: 1,
       name: `Paket ${TOKEN_PER_PACKAGE} Token Analisis NyawitAI`
     }]
   }
 
   try {
     const snapTransaction = await snap.createTransaction(parameter)
-    
+
     return {
       success: true,
       data: {

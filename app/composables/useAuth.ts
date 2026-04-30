@@ -113,6 +113,7 @@ export const useAuth = () => {
 
     if (import.meta.client) {
       localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem('analysisHistory') // Clear cached history on logout
     }
 
     navigateTo('/login')
