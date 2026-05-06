@@ -73,19 +73,31 @@ def scan_area(req: ScanRequest):
             final_img = image.select(['B4', 'B3', 'B2']).divide(10000)
             url = final_img.getThumbURL({'region': region, 'dimensions': '224x224', 'format': 'jpg', 'min': 0, 'max': 0.3})
 
-            resp = requests.get(url, timeout=5)
-            if resp.status_code == 200:
-                img = Image.open(BytesIO(resp.content)).convert('RGB')
-                img_arr = np.array(img.resize((224,224))).astype('float32') / 255.0
+            try:
+                # Naikkan timeout menjadi 15 atau 30 detik
+                resp = requests.get(url, timeout=30) 
+                
+                if resp.status_code == 200:
+                    img = Image.open(BytesIO(resp.content)).convert('RGB')
+                    img_arr = np.array(img.resize((224,224))).astype('float32') / 255.0
 
-                pred = model.predict(np.expand_dims(img_arr, axis=0), verbose=0)
-                idx = np.argmax(pred[0])
-                conf = np.max(pred[0])
+                    pred = model.predict(np.expand_dims(img_arr, axis=0), verbose=0)
+                    idx = np.argmax(pred[0])
+                    conf = np.max(pred[0])
 
-                all_points_data.append({
-                    'id': count, 'lat': float(lat), 'lon': float(lon),
-                    'class': CLASSES[idx], 'confidence': float(conf), 'color': COLORS[idx]
-                })
+                    all_points_data.append({
+                        'id': count, 'lat': float(lat), 'lon': float(lon),
+                        'class': CLASSES[idx], 'confidence': float(conf), 'color': COLORS[idx]
+                    })
+                else:
+                    print(f"⚠️ Gagal mendapatkan gambar di titik {count}, Status Code: {resp.status_code}")
+                    
+            except requests.exceptions.Timeout:
+                print(f"⏳ Timeout di titik {count}! Melewati titik ini agar server tidak crash...")
+                continue # Lanjut ke titik berikutnya
+            except requests.exceptions.RequestException as e:
+                print(f"❌ Error koneksi di titik {count}: {e}")
+                continue # Lanjut ke titik berikutnya
 
     # Hitung rata-rata skor kesesuaian dari lahan potensial untuk disimpan ke Database Nuxt
     potensial = [p['confidence'] for p in all_points_data if p['class'] == 'Lahan Potensial']
